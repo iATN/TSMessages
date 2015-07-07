@@ -269,6 +269,10 @@ __weak static UIViewController *_defaultViewController;
     
     
     dispatch_block_t animationBlock = ^{
+		if (currentView.messagePosition == TSMessageNotificationPositionNavBarOverlay)
+		{
+			[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+		}
         currentView.center = toPoint;
         if (![TSMessage iOS7StyleEnabled]) {
             currentView.alpha = TSMessageViewAlpha;
@@ -352,6 +356,11 @@ __weak static UIViewController *_defaultViewController;
          if (![TSMessage iOS7StyleEnabled]) {
              currentView.alpha = 0.f;
          }
+		 if (currentView.messagePosition == TSMessageNotificationPositionNavBarOverlay)
+		 {
+			[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+		 }
+		 
      } completion:^(BOOL finished)
      {
          [currentView removeFromSuperview];
