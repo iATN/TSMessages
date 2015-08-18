@@ -10,6 +10,7 @@
 #import "HexColors.h"
 #import "TSBlurView.h"
 #import "TSMessage.h"
+#import <QuartzCore/QuartzCore.h>
 
 #define TSMessageViewMinimumPadding 15.0
 
@@ -192,6 +193,8 @@ static NSMutableDictionary *_notificationDesign;
      buttonCallback:(void (^)())buttonCallback
          atPosition:(TSMessageNotificationPosition)position
 canBeDismissedByUser:(BOOL)dismissingEnabled
+			  emoji:(NSString *)emoji
+	  emojiFontSize:(NSInteger *)emojiFontSize
 {
     NSDictionary *notificationDesign = [TSMessageView notificationDesign];
     
@@ -338,7 +341,14 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
         {
             _button = [UIButton buttonWithType:UIButtonTypeCustom];
             
-            
+			
+			UIColor *buttonTitleTextColor = [UIColor colorWithHexString:[current valueForKey:@"buttonTitleTextColor"] alpha:1.0];
+			if (!buttonTitleTextColor)
+			{
+				buttonTitleTextColor = fontColor;
+			}
+
+			/*
             UIImage *buttonBackgroundImage = [self bundledImageNamed:[current valueForKey:@"buttonBackgroundImageName"]];
             
             buttonBackgroundImage = [buttonBackgroundImage resizableImageWithCapInsets:UIEdgeInsetsMake(15.0, 12.0, 15.0, 11.0)];
@@ -347,9 +357,17 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
             {
                 buttonBackgroundImage = [self bundledImageNamed:[current valueForKey:@"NotificationButtonBackground"]];
                 buttonBackgroundImage = [buttonBackgroundImage resizableImageWithCapInsets:UIEdgeInsetsMake(15.0, 12.0, 15.0, 11.0)];
-            }
-            
-            [self.button setBackgroundImage:buttonBackgroundImage forState:UIControlStateNormal];
+            }*/
+			
+			[self.button setBackgroundColor:[UIColor clearColor]];
+			//self.button.frame = CGRectMake(100.0, 100.0, 120.0, 50.0);//width and height should be same  value
+			self.button.clipsToBounds = YES;
+			
+			self.button.layer.cornerRadius = 4;
+			self.button.layer.borderColor = buttonTitleTextColor.CGColor;
+			self.button.layer.borderWidth = 1.0f;
+			
+			// [self.button setBackgroundImage:buttonBackgroundImage forState:UIControlStateNormal];
             [self.button setTitle:self.buttonTitle forState:UIControlStateNormal];
             
             UIColor *buttonTitleShadowColor = [UIColor colorWithHexString:[current valueForKey:@"buttonTitleShadowColor"] alpha:1.0];
@@ -359,13 +377,7 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
             }
             
             [self.button setTitleShadowColor:buttonTitleShadowColor forState:UIControlStateNormal];
-            
-            UIColor *buttonTitleTextColor = [UIColor colorWithHexString:[current valueForKey:@"buttonTitleTextColor"] alpha:1.0];
-            if (!buttonTitleTextColor)
-            {
-                buttonTitleTextColor = fontColor;
-            }
-            
+			
             [self.button setTitleColor:buttonTitleTextColor forState:UIControlStateNormal];
             self.button.titleLabel.font = [UIFont boldSystemFontOfSize:14.0];
             self.button.titleLabel.shadowOffset = CGSizeMake([[current valueForKey:@"buttonTitleShadowOffsetX"] floatValue],
@@ -549,6 +561,23 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     
     return currentHeight;
 }
+
+
+/*+ (UIImage*)backgroundImageForButtonWithResizable: (CGRect)resizable buttonForegroundColor: (UIColor*)buttonForegroundColor buttonBackgroundColor: (UIColor*)buttonBackgroundColor
+{
+	UIGraphicsBeginImageContextWithOptions(resizable.size, NO, 0.0f);
+	UIBezierPath* rectanglePath = [UIBezierPath bezierPathWithRoundedRect: CGRectMake(CGRectGetMinX(resizable) + floor(CGRectGetWidth(resizable) * 0.00526) + 0.5, CGRectGetMinY(resizable) + floor(CGRectGetHeight(resizable) * 0.02083) + 0.5, floor(CGRectGetWidth(resizable) * 0.99474) - floor(CGRectGetWidth(resizable) * 0.00526), floor(CGRectGetHeight(resizable) * 0.97917) - floor(CGRectGetHeight(resizable) * 0.02083)) cornerRadius: 4];
+	[buttonBackgroundColor setFill];
+	[rectanglePath fill];
+	[buttonForegroundColor setStroke];
+	rectanglePath.lineWidth = 1;
+	[rectanglePath stroke];
+	
+	UIImage* imageOfButton = [UIGraphicsGetImageFromCurrentImageContext() resizableImageWithCapInsets: UIEdgeInsetsMake(10, 10, 10, 10) resizingMode: UIImageResizingModeStretch];
+	UIGraphicsEndImageContext();
+	
+	return imageOfButton;
+}*/
 
 - (void)layoutSubviews
 {

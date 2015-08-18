@@ -61,6 +61,28 @@ __weak static UIViewController *_defaultViewController;
                                       type:type];
 }
 
++ (void)showNotificationWithTitle:(NSString *)title
+						 subtitle:(NSString *)subtitle
+							emoji:(NSString *)emoji
+					emojiFontSize:(NSInteger *)emojiFontSize
+							 type:(TSMessageNotificationType)type
+{
+	TSMessageView *v = [[TSMessageView alloc] initWithTitle:title
+												   subtitle:subtitle
+													  image:nil
+													   type:type
+												   duration:TSMessageNotificationDurationAutomatic
+										   inViewController:[self defaultViewController]
+												   callback:nil
+												buttonTitle:nil
+											 buttonCallback:nil
+												 atPosition:TSMessageNotificationPositionTop
+									   canBeDismissedByUser:YES
+													  emoji:emoji
+											  emojiFontSize:emojiFontSize];
+	[self prepareNotificationToBeShown:v];
+}
+
 + (void)showNotificationInViewController:(UIViewController *)viewController
                                    title:(NSString *)title
                                 subtitle:(NSString *)subtitle
@@ -97,7 +119,7 @@ __weak static UIViewController *_defaultViewController;
                                buttonTitle:nil
                             buttonCallback:nil
                                 atPosition:TSMessageNotificationPositionTop
-                       canBeDismissedByUser:dismissingEnabled];
+					  canBeDismissedByUser:dismissingEnabled];
 }
 
 + (void)showNotificationInViewController:(UIViewController *)viewController
@@ -115,7 +137,7 @@ __weak static UIViewController *_defaultViewController;
                                buttonTitle:nil
                             buttonCallback:nil
                                 atPosition:TSMessageNotificationPositionTop
-                      canBeDismissedByUser:YES];
+					  canBeDismissedByUser:YES];
 }
 
 
@@ -142,8 +164,40 @@ __weak static UIViewController *_defaultViewController;
                                                 buttonTitle:buttonTitle
                                              buttonCallback:buttonCallback
                                                  atPosition:messagePosition
-                                       canBeDismissedByUser:dismissingEnabled];
+									   canBeDismissedByUser:dismissingEnabled
+													  emoji:nil
+											  emojiFontSize:nil];
     [self prepareNotificationToBeShown:v];
+}
+
++ (void)showNotificationInViewController:(UIViewController *)viewController
+								   title:(NSString *)title
+								subtitle:(NSString *)subtitle
+								   emoji:(NSString *)emoji
+						   emojiFontSize:(NSInteger *)emojiFontSize
+									type:(TSMessageNotificationType)type
+								duration:(NSTimeInterval)duration
+								callback:(void (^)())callback
+							 buttonTitle:(NSString *)buttonTitle
+						  buttonCallback:(void (^)())buttonCallback
+							  atPosition:(TSMessageNotificationPosition)messagePosition
+					canBeDismissedByUser:(BOOL)dismissingEnabled
+{
+	// Create the TSMessageView
+	TSMessageView *v = [[TSMessageView alloc] initWithTitle:title
+												   subtitle:subtitle
+													  image:nil
+													   type:type
+												   duration:duration
+										   inViewController:viewController
+												   callback:callback
+												buttonTitle:buttonTitle
+											 buttonCallback:buttonCallback
+												 atPosition:messagePosition
+									   canBeDismissedByUser:dismissingEnabled
+													  emoji:emoji
+											  emojiFontSize:emojiFontSize];
+	[self prepareNotificationToBeShown:v];
 }
 
 
@@ -151,7 +205,7 @@ __weak static UIViewController *_defaultViewController;
 {
     NSString *title = messageView.title;
     NSString *subtitle = messageView.subtitle;
-    
+	
     for (TSMessageView *n in [TSMessage sharedMessage].messages)
     {
         if (([n.title isEqualToString:title] || (!n.title && !title)) && ([n.subtitle isEqualToString:subtitle] || (!n.subtitle && !subtitle)))
@@ -159,9 +213,9 @@ __weak static UIViewController *_defaultViewController;
             return; // avoid showing the same messages twice in a row
         }
     }
-    
+	
     [[TSMessage sharedMessage].messages addObject:messageView];
-    
+	
     if (!notificationActive)
     {
         [[TSMessage sharedMessage] fadeInCurrentNotification];
