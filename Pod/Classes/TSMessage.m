@@ -263,7 +263,7 @@ __weak static UIViewController *_defaultViewController;
         else
             currentNavigationController = (UINavigationController *)currentView.viewController.parentViewController;
         
-        BOOL isViewIsUnderStatusBar = [[[currentNavigationController childViewControllers] firstObject] wantsFullScreenLayout];
+        BOOL isViewIsUnderStatusBar = [[[currentNavigationController childViewControllers] firstObject] edgesForExtendedLayout] == UIRectEdgeAll;
         if (!isViewIsUnderStatusBar && currentNavigationController.parentViewController == nil) {
             isViewIsUnderStatusBar = ![TSMessage isNavigationBarInNavigationControllerHidden:currentNavigationController]; // strange but true
         }
@@ -271,7 +271,17 @@ __weak static UIViewController *_defaultViewController;
         {
             [currentNavigationController.view insertSubview:currentView
                                                belowSubview:[currentNavigationController navigationBar]];
-            verticalOffset = [currentNavigationController navigationBar].bounds.size.height;
+
+			verticalOffset = [currentNavigationController navigationBar].bounds.size.height;
+			
+			// A hack by Thomas Winzig so that TLYShybar's shrinking navbar will be offset correctly.
+			// If this is not performed, when the navbar is shrunk (or more appropriately explained as
+			// "slid up out of view," then the TSMessages alert will be float down below the bottom of
+			// the shrunken navbar. For whatever reason, the navbar center.y is normally at 42 and when
+			// fully shrunken, it's at -2. So subtracting -42 should offset this appropriately.
+			verticalOffset += ([currentNavigationController navigationBar].center.y - 42);
+			////////////////////////////////////////////////////////////////////////////////////////
+			
             if ([TSMessage iOS7StyleEnabled] || isViewIsUnderStatusBar) {
                 addStatusBarHeightToVerticalOffset();
             }
